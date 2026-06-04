@@ -1,0 +1,19 @@
+Feature,Mean_SHAP_B$,Type
+salaire maroc,2.8833522503805544,Economic
+CO_mean,2.872225738667125,Satellite
+NDVI_mean,2.697736619911974,Satellite
+Food_production_index,2.091458568203024,Economic
+Precip_mean,1.404557780015199,Satellite
+LST_max,1.3530237206726285,Satellite
+NightLights_std,1.1167412455324264,Satellite
+exportation maroc,0.9586248493559784,Economic
+Manufacturing_percent_GDP,0.64920300147925,Economic
+Gross_capital_formation_percent,0.6127383539567764,Economic
+Cereal_yield_kg_per_ha,0.598806848704923,Economic
+LST_mean,0.5779839716250247,Satellite
+GDP_Growth_Rate,0.4543882370017113,Economic
+Inflation_rate,0.31398522609229385,Economic
+Agriculture_percent_GDP,0.2829900261030406,Economic
+FDI_percent_GDP,0.056535790133274526,Economic
+LST_std,0.0,Satellite
+Current_Account_GDP,0.0,Economic
