@@ -1,7 +1,7 @@
 """
 Morocco GDP Nowcasting Platform
 Master BI & Big Data Analytics - Yassine Bouayad - 2025/2026
-All headline metrics are read dynamically from the CSV files.
+Light theme. Metrics read dynamically from CSVs.
 """
 
 import streamlit as st
@@ -33,24 +33,26 @@ PRIMARY = "#1f4e79"
 SECONDARY = "#2e75b6"
 ACCENT = "#c55a11"
 
-# ---- Custom CSS ----
+# ---- Light theme CSS ----
 st.markdown(f"""
 <style>
-  .main {{ background-color: #fafbfc; }}
-  .block-container {{ padding-top: 2rem; }}
+  .stApp {{ background-color: #ffffff; }}
+  .main .block-container {{ padding-top: 2rem; background-color: #ffffff; }}
   h1, h2, h3 {{ color: {PRIMARY}; }}
+  p, li, label, .stMarkdown {{ color: #1a1a1a; }}
+  section[data-testid="stSidebar"] {{ background-color: #f4f8fc; }}
   .metric-card {{
     background: linear-gradient(135deg, {PRIMARY}, {SECONDARY});
     color: white; padding: 20px; border-radius: 10px; text-align: center;
+    box-shadow: 0 2px 8px rgba(31,78,121,0.15);
   }}
-  .metric-value {{ font-size: 32px; font-weight: 700; }}
-  .metric-label {{ font-size: 14px; opacity: 0.9; }}
-  .stTabs [data-baseweb="tab-list"] {{ gap: 8px; }}
+  .metric-value {{ font-size: 32px; font-weight: 700; color: white; }}
+  .metric-label {{ font-size: 14px; opacity: 0.92; color: white; }}
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================
-# LOAD MODEL + DATA (cached)
+# LOAD MODEL + DATA
 # ============================================================
 @st.cache_resource
 def load_model():
@@ -75,7 +77,7 @@ df_clean, df_results, df_resid, df_shap, df_preds = load_data()
 
 SATELLITE = ["CO_mean","NDVI_mean","NightLights_std","Precip_mean","LST_mean","LST_std","LST_max"]
 
-# ---- Dynamic headline metrics (read from CSVs, never hardcoded) ----
+# ---- Dynamic headline metrics ----
 _best = df_results.sort_values("R2", ascending=False).iloc[0]
 BEST_MODEL_NAME = _best["Model"]
 BEST_R2   = float(_best["R2"])
@@ -113,7 +115,6 @@ def fetch_imf_current_account():
     try:
         r = requests.get("https://www.imf.org/external/datamapper/api/v1/BCA_NGDPD/MAR", timeout=15).json()
         vals = r["values"]["BCA_NGDPD"]["MAR"]
-        # only use actual years (<= current year), not forecasts
         this_year = datetime.now().year
         valid = {int(y): v for y, v in vals.items() if int(y) <= this_year}
         latest = max(valid.keys())
@@ -187,7 +188,8 @@ if page == "Vue d'ensemble":
                              mode="lines+markers", name=f"PIB estimé ({BEST_MODEL_NAME})",
                              line=dict(color=ACCENT, width=2, dash="dash")))
     fig.update_layout(height=450, xaxis_title="Année", yaxis_title="PIB (Milliards USD)",
-                      plot_bgcolor="white", hovermode="x unified")
+                      plot_bgcolor="white", paper_bgcolor="white", hovermode="x unified",
+                      font=dict(color="#1a1a1a"))
     st.plotly_chart(fig, use_container_width=True)
 
     st.info("Le nowcasting estime le PIB présent en temps quasi réel, avant la publication "
@@ -214,8 +216,8 @@ elif page == "Nowcast en direct":
             "Source": [src[f] for f in FEATURES]
         })
         st.dataframe(tbl, use_container_width=True, hide_index=True)
-        st.caption("Les indicateurs satellitaires utilisent les dernières valeurs extraites "
-                   "(Google Earth Engine). Les indicateurs économiques sont récupérés en direct.")
+        st.caption("Indicateurs satellitaires : dernières valeurs extraites (Google Earth Engine). "
+                   "Indicateurs économiques : récupérés en direct.")
     else:
         st.info("Cliquez sur le bouton pour lancer une estimation avec les données les plus récentes.")
 
@@ -243,7 +245,7 @@ elif page == "Indicateurs satellitaires":
     fig.add_trace(go.Scatter(x=df_clean["Year"], y=df_clean[indicator],
                              mode="lines+markers", line=dict(color=SECONDARY, width=2.5)))
     fig.update_layout(height=400, xaxis_title="Année", yaxis_title=indicator,
-                      plot_bgcolor="white")
+                      plot_bgcolor="white", paper_bgcolor="white", font=dict(color="#1a1a1a"))
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("### Tous les indicateurs satellitaires")
@@ -253,7 +255,7 @@ elif page == "Indicateurs satellitaires":
     for col in SATELLITE:
         fig2.add_trace(go.Scatter(x=norm["Year"], y=norm[col], mode="lines", name=col))
     fig2.update_layout(height=400, xaxis_title="Année", yaxis_title="Valeur normalisée",
-                       plot_bgcolor="white")
+                       plot_bgcolor="white", paper_bgcolor="white", font=dict(color="#1a1a1a"))
     st.plotly_chart(fig2, use_container_width=True)
 
 # ============================================================
@@ -269,7 +271,8 @@ elif page == "Résultats des modèles":
     fig = px.bar(disp, x="Model", y="R2", color="R2",
                  color_continuous_scale="Blues", text="R2")
     fig.update_traces(texttemplate="%{text:.3f}", textposition="outside")
-    fig.update_layout(height=400, plot_bgcolor="white", yaxis_title="R²")
+    fig.update_layout(height=400, plot_bgcolor="white", paper_bgcolor="white",
+                      yaxis_title="R²", font=dict(color="#1a1a1a"))
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("### Meilleur modèle")
@@ -287,8 +290,8 @@ elif page == "Interprétabilité (SHAP)":
     sh = sh.sort_values(val_col, ascending=True)
     fig = px.bar(sh, x=val_col, y="Feature", orientation="h", color="Type",
                  color_discrete_map={"Satellite": ACCENT, "Economic": SECONDARY})
-    fig.update_layout(height=600, plot_bgcolor="white",
-                      xaxis_title="Impact moyen |SHAP| (Milliards USD)")
+    fig.update_layout(height=600, plot_bgcolor="white", paper_bgcolor="white",
+                      xaxis_title="Impact moyen |SHAP| (Milliards USD)", font=dict(color="#1a1a1a"))
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("### Principaux constats")
@@ -300,21 +303,75 @@ elif page == "Interprétabilité (SHAP)":
     """)
 
 # ============================================================
-# PAGE 6 - MAP
+# PAGE 6 - MOROCCO MAP (regional breakdown)
 # ============================================================
 elif page == "Carte du Maroc":
-    st.title("Carte du Maroc")
-    st.markdown("Visualisation géographique (niveau national).")
+    st.title("Carte économique du Maroc")
+    st.markdown("Répartition régionale estimée du PIB, basée sur les parts régionales du HCP "
+                "appliquées à l'estimation nationale du modèle.")
 
-    fig = go.Figure(go.Choropleth(
-        locations=["MAR"], z=[df_preds["GDP_Predicted_USD"].iloc[-1]/1e9],
-        locationmode="ISO-3", colorscale="Blues",
-        colorbar_title="PIB (Md$)"
-    ))
-    fig.update_layout(height=500,
-                      geo=dict(scope="africa", projection_type="mercator",
-                               center=dict(lat=31.8, lon=-7), showframe=False))
-    st.plotly_chart(fig, use_container_width=True)
+    national_gdp = df_preds["GDP_Predicted_USD"].iloc[-1] / 1e9
 
-    st.info("L'analyse actuelle est au niveau national. Une extension régionale "
-            "(12 régions du Maroc) constitue une perspective d'évolution du projet.")
+    # Approximate regional GDP shares (HCP PIB régional) + regional capital coordinates
+    regions = pd.DataFrame({
+        "Région": ["Casablanca-Settat","Rabat-Salé-Kénitra","Tanger-Tétouan-Al Hoceïma",
+                   "Marrakech-Safi","Fès-Meknès","Souss-Massa","Béni Mellal-Khénifra",
+                   "Oriental","Drâa-Tafilalet","Laâyoune-Sakia El Hamra",
+                   "Guelmim-Oued Noun","Dakhla-Oued Ed-Dahab"],
+        "Part": [0.322,0.159,0.094,0.087,0.086,0.069,0.050,0.047,0.026,0.021,0.014,0.011],
+        "lat": [33.57,34.02,35.76,31.63,34.04,30.42,32.34,34.68,31.93,27.15,28.99,23.68],
+        "lon": [-7.59,-6.83,-5.83,-7.99,-5.00,-9.60,-6.36,-1.91,-4.42,-13.20,-10.06,-15.96],
+    })
+    regions["PIB estimé (Md$)"] = (regions["Part"] * national_gdp).round(2)
+    regions["Part (%)"] = (regions["Part"] * 100).round(1)
+
+    col_map, col_kpi = st.columns([2, 1])
+
+    with col_map:
+        fig = go.Figure(go.Scattergeo(
+            lon=regions["lon"], lat=regions["lat"],
+            text=regions["Région"] + " : $" + regions["PIB estimé (Md$)"].astype(str) + "B",
+            hoverinfo="text",
+            marker=dict(
+                size=regions["Part"]*250,
+                color=regions["PIB estimé (Md$)"],
+                colorscale="Blues",
+                line_color="rgb(60,60,60)",
+                line_width=0.6,
+                sizemode="area",
+                colorbar_title="PIB (Md$)"
+            )
+        ))
+        fig.update_layout(
+            height=560,
+            geo=dict(
+                scope="africa",
+                projection_type="mercator",
+                center=dict(lat=29.5, lon=-8),
+                lataxis_range=[20.5, 36.5],
+                lonaxis_range=[-17.5, -0.5],
+                showland=True, landcolor="rgb(245,247,250)",
+                showcountries=True, countrycolor="rgb(160,160,160)",
+                coastlinecolor="rgb(160,160,160)",
+                showframe=False, bgcolor="white"
+            ),
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor="white"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col_kpi:
+        st.metric("PIB national estimé", f"${national_gdp:.1f}B")
+        st.metric("Région la plus active", "Casablanca-Settat")
+        st.metric("Part Casablanca-Settat", "32.2%")
+        st.caption(f"Modèle : {BEST_MODEL_NAME} (R² = {BEST_R2:.2f})")
+
+    st.markdown("### Répartition régionale du PIB estimé")
+    st.dataframe(
+        regions[["Région", "Part (%)", "PIB estimé (Md$)"]].sort_values("PIB estimé (Md$)", ascending=False),
+        use_container_width=True, hide_index=True
+    )
+
+    st.info("Le modèle estime le PIB au niveau national. La répartition régionale présentée ici "
+            "applique les parts régionales publiées par le HCP. Une modélisation régionale directe "
+            "(extraction satellitaire par région) constitue une perspective d'évolution du projet.")
