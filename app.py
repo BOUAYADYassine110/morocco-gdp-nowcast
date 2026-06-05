@@ -1,7 +1,7 @@
 """
 Morocco GDP Nowcasting Platform
 Master BI & Big Data Analytics - Yassine Bouayad - 2025/2026
-Light theme. Metrics read dynamically from CSVs.
+Modern light UI, animations, real interactive map.
 """
 
 import streamlit as st
@@ -20,7 +20,7 @@ from datetime import datetime
 # ============================================================
 st.set_page_config(
     page_title="Morocco GDP Nowcasting",
-    page_icon="MA",
+    page_icon="🇲🇦",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -33,26 +33,84 @@ PRIMARY = "#1f4e79"
 SECONDARY = "#2e75b6"
 ACCENT = "#c55a11"
 
-# ---- Light theme CSS ----
+# ============================================================
+# MODERN UI CSS
+# ============================================================
 st.markdown(f"""
 <style>
-  .stApp {{ background-color: #ffffff; }}
-  .main .block-container {{ padding-top: 2rem; background-color: #ffffff; }}
-  h1, h2, h3 {{ color: {PRIMARY}; }}
-  p, li, label, .stMarkdown {{ color: #1a1a1a; }}
-  section[data-testid="stSidebar"] {{ background-color: #f4f8fc; }}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  html, body, [class*="css"] {{ font-family: 'Inter', sans-serif; }}
+  .stApp {{ background: linear-gradient(180deg, #f8fafc 0%, #eef3f9 100%); }}
+  .main .block-container {{ padding-top: 2.5rem; max-width: 1200px; }}
+
+  h1 {{ color: {PRIMARY}; font-weight: 800; letter-spacing: -0.5px; }}
+  h2, h3 {{ color: {PRIMARY}; font-weight: 700; }}
+  p, li, label {{ color: #2d3748; }}
+
+  section[data-testid="stSidebar"] {{
+    background: linear-gradient(180deg, {PRIMARY} 0%, #16385a 100%);
+  }}
+  section[data-testid="stSidebar"] * {{ color: #eaf2fb !important; }}
+
+  /* Animated metric cards */
   .metric-card {{
     background: linear-gradient(135deg, {PRIMARY}, {SECONDARY});
-    color: white; padding: 20px; border-radius: 10px; text-align: center;
-    box-shadow: 0 2px 8px rgba(31,78,121,0.15);
+    color: white; padding: 24px 20px; border-radius: 16px; text-align: center;
+    box-shadow: 0 8px 24px rgba(31,78,121,0.18);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeUp 0.6s ease both;
   }}
-  .metric-value {{ font-size: 32px; font-weight: 700; color: white; }}
-  .metric-label {{ font-size: 14px; opacity: 0.92; color: white; }}
+  .metric-card:hover {{
+    transform: translateY(-6px);
+    box-shadow: 0 14px 34px rgba(31,78,121,0.30);
+  }}
+  .metric-value {{ font-size: 36px; font-weight: 800; color: white; line-height: 1; }}
+  .metric-label {{ font-size: 13px; opacity: 0.92; color: white; margin-top: 8px;
+                   text-transform: uppercase; letter-spacing: 1px; }}
+
+  /* Card delays for staggered entrance */
+  .delay1 {{ animation-delay: 0.05s; }}
+  .delay2 {{ animation-delay: 0.15s; }}
+  .delay3 {{ animation-delay: 0.25s; }}
+  .delay4 {{ animation-delay: 0.35s; }}
+
+  @keyframes fadeUp {{
+    from {{ opacity: 0; transform: translateY(20px); }}
+    to   {{ opacity: 1; transform: translateY(0); }}
+  }}
+
+  /* Hero banner */
+  .hero {{
+    background: linear-gradient(120deg, {PRIMARY} 0%, {SECONDARY} 60%, {ACCENT} 140%);
+    color: white; padding: 38px 40px; border-radius: 20px; margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(31,78,121,0.25);
+    animation: fadeUp 0.6s ease both;
+  }}
+  .hero h1 {{ color: white; margin: 0 0 8px 0; font-size: 32px; }}
+  .hero p {{ color: #e8f0fa; margin: 0; font-size: 16px; }}
+
+  /* Content cards */
+  .panel {{
+    background: white; padding: 22px 26px; border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06); margin-bottom: 18px;
+    animation: fadeUp 0.5s ease both;
+  }}
+
+  .stButton>button {{
+    background: linear-gradient(135deg, {ACCENT}, #e08a3c);
+    color: white; border: none; border-radius: 10px; padding: 12px 28px;
+    font-weight: 600; font-size: 15px; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(197,90,17,0.3);
+  }}
+  .stButton>button:hover {{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(197,90,17,0.45); }}
+
+  [data-testid="stMetricValue"] {{ color: {PRIMARY}; font-weight: 800; }}
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================
-# LOAD MODEL + DATA
+# LOAD
 # ============================================================
 @st.cache_resource
 def load_model():
@@ -77,7 +135,6 @@ df_clean, df_results, df_resid, df_shap, df_preds = load_data()
 
 SATELLITE = ["CO_mean","NDVI_mean","NightLights_std","Precip_mean","LST_mean","LST_std","LST_max"]
 
-# ---- Dynamic headline metrics ----
 _best = df_results.sort_values("R2", ascending=False).iloc[0]
 BEST_MODEL_NAME = _best["Model"]
 BEST_R2   = float(_best["R2"])
@@ -146,7 +203,7 @@ def predict_gdp(row):
 # ============================================================
 # SIDEBAR
 # ============================================================
-st.sidebar.title("Morocco GDP Nowcasting")
+st.sidebar.markdown("## 🇲🇦 GDP Nowcasting")
 st.sidebar.markdown("**Yassine Bouayad**")
 st.sidebar.markdown("Master BI & Big Data Analytics")
 st.sidebar.markdown("Faculté des Sciences El Jadida")
@@ -160,36 +217,42 @@ page = st.sidebar.radio("Navigation", [
     "Carte du Maroc"
 ])
 st.sidebar.markdown("---")
-st.sidebar.caption("Données : Google Earth Engine, Banque Mondiale, FMI, FAO, Google Trends")
+st.sidebar.caption("Sources : Google Earth Engine, Banque Mondiale, FMI, FAO, Google Trends")
 
 # ============================================================
 # PAGE 1 - OVERVIEW
 # ============================================================
 if page == "Vue d'ensemble":
-    st.title("Estimation du PIB du Maroc par Imagerie Satellitaire")
-    st.markdown("Plateforme de nowcasting combinant télédétection et apprentissage automatique.")
+    st.markdown('<div class="hero"><h1>Estimation du PIB du Maroc par Imagerie Satellitaire</h1>'
+                '<p>Plateforme de nowcasting combinant télédétection et apprentissage automatique</p></div>',
+                unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.markdown(f'<div class="metric-card"><div class="metric-value">{BEST_R2:.2f}</div><div class="metric-label">R² ({BEST_MODEL_NAME})</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card delay1"><div class="metric-value">{BEST_R2:.2f}</div><div class="metric-label">R² ({BEST_MODEL_NAME})</div></div>', unsafe_allow_html=True)
     with c2:
-        st.markdown(f'<div class="metric-card"><div class="metric-value">${BEST_RMSE:.1f}B</div><div class="metric-label">RMSE</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card delay2"><div class="metric-value">${BEST_RMSE:.1f}B</div><div class="metric-label">RMSE</div></div>', unsafe_allow_html=True)
     with c3:
-        st.markdown(f'<div class="metric-card"><div class="metric-value">{N_FEATURES}</div><div class="metric-label">Variables</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card delay3"><div class="metric-value">{N_FEATURES}</div><div class="metric-label">Variables</div></div>', unsafe_allow_html=True)
     with c4:
-        st.markdown(f'<div class="metric-card"><div class="metric-value">{YEAR_MIN}-{str(YEAR_MAX)[2:]}</div><div class="metric-label">Période</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card delay4"><div class="metric-value">{YEAR_MIN}-{str(YEAR_MAX)[2:]}</div><div class="metric-label">Période</div></div>', unsafe_allow_html=True)
 
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### PIB réel vs estimé")
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_preds["Year"], y=df_preds["GDP_Actual_USD"]/1e9,
                              mode="lines+markers", name="PIB réel",
-                             line=dict(color=PRIMARY, width=3)))
+                             line=dict(color=PRIMARY, width=3.5),
+                             marker=dict(size=8),
+                             fill="tozeroy", fillcolor="rgba(31,78,121,0.06)"))
     fig.add_trace(go.Scatter(x=df_preds["Year"], y=df_preds["GDP_Predicted_USD"]/1e9,
                              mode="lines+markers", name=f"PIB estimé ({BEST_MODEL_NAME})",
-                             line=dict(color=ACCENT, width=2, dash="dash")))
-    fig.update_layout(height=450, xaxis_title="Année", yaxis_title="PIB (Milliards USD)",
+                             line=dict(color=ACCENT, width=2.5, dash="dash"),
+                             marker=dict(size=7)))
+    fig.update_layout(height=440, xaxis_title="Année", yaxis_title="PIB (Milliards USD)",
                       plot_bgcolor="white", paper_bgcolor="white", hovermode="x unified",
-                      font=dict(color="#1a1a1a"))
+                      font=dict(color="#2d3748", family="Inter"),
+                      legend=dict(orientation="h", y=1.1))
     st.plotly_chart(fig, use_container_width=True)
 
     st.info("Le nowcasting estime le PIB présent en temps quasi réel, avant la publication "
@@ -199,16 +262,20 @@ if page == "Vue d'ensemble":
 # PAGE 2 - LIVE NOWCAST
 # ============================================================
 elif page == "Nowcast en direct":
-    st.title("Nowcast du PIB en direct")
-    st.markdown("Estimation en temps réel à partir des dernières données économiques disponibles.")
+    st.markdown('<div class="hero"><h1>Nowcast du PIB en direct</h1>'
+                '<p>Estimation en temps réel à partir des dernières données économiques</p></div>',
+                unsafe_allow_html=True)
 
     if st.button("Lancer le nowcast (données en direct)", type="primary"):
         with st.spinner("Récupération des données Banque Mondiale et FMI..."):
             row, src = build_live_row()
             gdp = predict_gdp(row)
 
-        st.success(f"Estimation du PIB : **${gdp/1e9:.2f} Milliards USD**")
-
+        st.markdown(f'<div class="metric-card" style="max-width:420px;margin:10px auto;">'
+                    f'<div class="metric-value">${gdp/1e9:.2f}B</div>'
+                    f'<div class="metric-label">PIB estimé (nowcast)</div></div>',
+                    unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("### Variables utilisées")
         tbl = pd.DataFrame({
             "Variable": FEATURES,
@@ -216,17 +283,18 @@ elif page == "Nowcast en direct":
             "Source": [src[f] for f in FEATURES]
         })
         st.dataframe(tbl, use_container_width=True, hide_index=True)
-        st.caption("Indicateurs satellitaires : dernières valeurs extraites (Google Earth Engine). "
+        st.caption("Indicateurs satellitaires : dernières valeurs (Google Earth Engine). "
                    "Indicateurs économiques : récupérés en direct.")
     else:
         st.info("Cliquez sur le bouton pour lancer une estimation avec les données les plus récentes.")
 
 # ============================================================
-# PAGE 3 - SATELLITE INDICATORS
+# PAGE 3 - SATELLITE
 # ============================================================
 elif page == "Indicateurs satellitaires":
-    st.title("Indicateurs satellitaires")
-    st.markdown("Signaux extraits via Google Earth Engine pour le Maroc.")
+    st.markdown('<div class="hero"><h1>Indicateurs satellitaires</h1>'
+                '<p>Signaux extraits via Google Earth Engine pour le Maroc</p></div>',
+                unsafe_allow_html=True)
 
     descriptions = {
         "CO_mean": "Monoxyde de carbone (Sentinel-5P) - activité industrielle",
@@ -243,47 +311,52 @@ elif page == "Indicateurs satellitaires":
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_clean["Year"], y=df_clean[indicator],
-                             mode="lines+markers", line=dict(color=SECONDARY, width=2.5)))
+                             mode="lines+markers", line=dict(color=SECONDARY, width=3),
+                             marker=dict(size=7), fill="tozeroy",
+                             fillcolor="rgba(46,117,182,0.08)"))
     fig.update_layout(height=400, xaxis_title="Année", yaxis_title=indicator,
-                      plot_bgcolor="white", paper_bgcolor="white", font=dict(color="#1a1a1a"))
+                      plot_bgcolor="white", paper_bgcolor="white",
+                      font=dict(color="#2d3748", family="Inter"))
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("### Tous les indicateurs satellitaires")
+    st.markdown("### Tous les indicateurs (normalisés)")
     norm = df_clean[SATELLITE].apply(lambda c: (c-c.min())/(c.max()-c.min()))
     norm["Year"] = df_clean["Year"]
     fig2 = go.Figure()
     for col in SATELLITE:
-        fig2.add_trace(go.Scatter(x=norm["Year"], y=norm[col], mode="lines", name=col))
+        fig2.add_trace(go.Scatter(x=norm["Year"], y=norm[col], mode="lines",
+                                  name=col, line=dict(width=2)))
     fig2.update_layout(height=400, xaxis_title="Année", yaxis_title="Valeur normalisée",
-                       plot_bgcolor="white", paper_bgcolor="white", font=dict(color="#1a1a1a"))
+                       plot_bgcolor="white", paper_bgcolor="white",
+                       font=dict(color="#2d3748", family="Inter"))
     st.plotly_chart(fig2, use_container_width=True)
 
 # ============================================================
 # PAGE 4 - MODEL RESULTS
 # ============================================================
 elif page == "Résultats des modèles":
-    st.title("Résultats des modèles")
+    st.markdown('<div class="hero"><h1>Résultats des modèles</h1>'
+                '<p>Comparaison de six modèles par validation croisée Leave-One-Out</p></div>',
+                unsafe_allow_html=True)
 
-    st.markdown("### Comparaison des modèles (validation LOO-CV)")
     disp = df_results.copy().sort_values("R2", ascending=False)
     st.dataframe(disp, use_container_width=True, hide_index=True)
 
     fig = px.bar(disp, x="Model", y="R2", color="R2",
                  color_continuous_scale="Blues", text="R2")
     fig.update_traces(texttemplate="%{text:.3f}", textposition="outside")
-    fig.update_layout(height=400, plot_bgcolor="white", paper_bgcolor="white",
-                      yaxis_title="R²", font=dict(color="#1a1a1a"))
+    fig.update_layout(height=420, plot_bgcolor="white", paper_bgcolor="white",
+                      yaxis_title="R²", font=dict(color="#2d3748", family="Inter"))
     st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("### Meilleur modèle")
-    st.caption(f"{BEST_MODEL_NAME} — R² = {BEST_R2:.4f}, RMSE = ${BEST_RMSE:.2f}B")
+    st.caption(f"Meilleur modèle : {BEST_MODEL_NAME} — R² = {BEST_R2:.4f}, RMSE = ${BEST_RMSE:.2f}B")
 
 # ============================================================
 # PAGE 5 - SHAP
 # ============================================================
 elif page == "Interprétabilité (SHAP)":
-    st.title("Interprétabilité du modèle (SHAP)")
-    st.markdown("Contribution de chaque variable aux prédictions du PIB.")
+    st.markdown('<div class="hero"><h1>Interprétabilité (SHAP)</h1>'
+                '<p>Contribution de chaque variable aux prédictions du PIB</p></div>',
+                unsafe_allow_html=True)
 
     sh = df_shap.copy()
     val_col = "Mean_SHAP_B$" if "Mean_SHAP_B$" in sh.columns else sh.columns[1]
@@ -291,28 +364,28 @@ elif page == "Interprétabilité (SHAP)":
     fig = px.bar(sh, x=val_col, y="Feature", orientation="h", color="Type",
                  color_discrete_map={"Satellite": ACCENT, "Economic": SECONDARY})
     fig.update_layout(height=600, plot_bgcolor="white", paper_bgcolor="white",
-                      xaxis_title="Impact moyen |SHAP| (Milliards USD)", font=dict(color="#1a1a1a"))
+                      xaxis_title="Impact moyen |SHAP| (Milliards USD)",
+                      font=dict(color="#2d3748", family="Inter"))
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("### Principaux constats")
     st.markdown("""
+    **Principaux constats**
     - Plusieurs indicateurs satellitaires figurent parmi les variables les plus influentes.
     - Les émissions de CO et les lumières nocturnes sont des indicateurs satellitaires importants.
     - Le signal de sécheresse (température LST, NDVI) contribue fortement aux prédictions.
-    - La fusion multi-sources améliore nettement la précision par rapport aux données satellitaires seules.
+    - La fusion multi-sources améliore nettement la précision par rapport au satellite seul.
     """)
 
 # ============================================================
-# PAGE 6 - MOROCCO MAP (regional breakdown)
+# PAGE 6 - MAP (real interactive mapbox)
 # ============================================================
 elif page == "Carte du Maroc":
-    st.title("Carte économique du Maroc")
-    st.markdown("Répartition régionale estimée du PIB, basée sur les parts régionales du HCP "
-                "appliquées à l'estimation nationale du modèle.")
+    st.markdown('<div class="hero"><h1>Carte économique du Maroc</h1>'
+                '<p>Répartition régionale estimée du PIB (parts régionales HCP)</p></div>',
+                unsafe_allow_html=True)
 
     national_gdp = df_preds["GDP_Predicted_USD"].iloc[-1] / 1e9
 
-    # Approximate regional GDP shares (HCP PIB régional) + regional capital coordinates
     regions = pd.DataFrame({
         "Région": ["Casablanca-Settat","Rabat-Salé-Kénitra","Tanger-Tétouan-Al Hoceïma",
                    "Marrakech-Safi","Fès-Meknès","Souss-Massa","Béni Mellal-Khénifra",
@@ -322,40 +395,24 @@ elif page == "Carte du Maroc":
         "lat": [33.57,34.02,35.76,31.63,34.04,30.42,32.34,34.68,31.93,27.15,28.99,23.68],
         "lon": [-7.59,-6.83,-5.83,-7.99,-5.00,-9.60,-6.36,-1.91,-4.42,-13.20,-10.06,-15.96],
     })
-    regions["PIB estimé (Md$)"] = (regions["Part"] * national_gdp).round(2)
+    regions["PIB (Md$)"] = (regions["Part"] * national_gdp).round(2)
     regions["Part (%)"] = (regions["Part"] * 100).round(1)
 
-    col_map, col_kpi = st.columns([2, 1])
+    col_map, col_kpi = st.columns([2.3, 1])
 
     with col_map:
-        fig = go.Figure(go.Scattergeo(
-            lon=regions["lon"], lat=regions["lat"],
-            text=regions["Région"] + " : $" + regions["PIB estimé (Md$)"].astype(str) + "B",
-            hoverinfo="text",
-            marker=dict(
-                size=regions["Part"]*250,
-                color=regions["PIB estimé (Md$)"],
-                colorscale="Blues",
-                line_color="rgb(60,60,60)",
-                line_width=0.6,
-                sizemode="area",
-                colorbar_title="PIB (Md$)"
-            )
-        ))
+        fig = px.scatter_mapbox(
+            regions, lat="lat", lon="lon",
+            size="Part", color="PIB (Md$)",
+            color_continuous_scale="YlOrRd",
+            size_max=45, zoom=4.3,
+            hover_name="Région",
+            hover_data={"PIB (Md$)": True, "Part (%)": True, "lat": False, "lon": False},
+            center=dict(lat=29.5, lon=-8)
+        )
         fig.update_layout(
-            height=560,
-            geo=dict(
-                scope="africa",
-                projection_type="mercator",
-                center=dict(lat=29.5, lon=-8),
-                lataxis_range=[20.5, 36.5],
-                lonaxis_range=[-17.5, -0.5],
-                showland=True, landcolor="rgb(245,247,250)",
-                showcountries=True, countrycolor="rgb(160,160,160)",
-                coastlinecolor="rgb(160,160,160)",
-                showframe=False, bgcolor="white"
-            ),
-            margin=dict(l=0, r=0, t=10, b=0),
+            mapbox_style="open-street-map",
+            height=580, margin=dict(l=0, r=0, t=0, b=0),
             paper_bgcolor="white"
         )
         st.plotly_chart(fig, use_container_width=True)
@@ -368,10 +425,9 @@ elif page == "Carte du Maroc":
 
     st.markdown("### Répartition régionale du PIB estimé")
     st.dataframe(
-        regions[["Région", "Part (%)", "PIB estimé (Md$)"]].sort_values("PIB estimé (Md$)", ascending=False),
+        regions[["Région","Part (%)","PIB (Md$)"]].sort_values("PIB (Md$)", ascending=False),
         use_container_width=True, hide_index=True
     )
-
-    st.info("Le modèle estime le PIB au niveau national. La répartition régionale présentée ici "
-            "applique les parts régionales publiées par le HCP. Une modélisation régionale directe "
-            "(extraction satellitaire par région) constitue une perspective d'évolution du projet.")
+    st.info("Le modèle estime le PIB au niveau national. La répartition régionale applique "
+            "les parts régionales publiées par le HCP. Une modélisation régionale directe "
+            "constitue une perspective d'évolution du projet.")
