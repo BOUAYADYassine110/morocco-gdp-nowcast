@@ -1,0 +1,40 @@
+{
+  "model": "GradientBoostingRegressor",
+  "params": {
+    "n_estimators": 300,
+    "learning_rate": 0.05,
+    "max_depth": 3
+  },
+  "features": [
+    "salaire maroc",
+    "Food_production_index",
+    "LST_mean",
+    "FDI_percent_GDP",
+    "NDVI_mean",
+    "GDP_Growth_Rate",
+    "LST_max"
+  ],
+  "feature_order": [
+    "salaire maroc",
+    "Food_production_index",
+    "LST_mean",
+    "FDI_percent_GDP",
+    "NDVI_mean",
+    "GDP_Growth_Rate",
+    "LST_max"
+  ],
+  "target": "GDP_USD",
+  "target_unit": "USD",
+  "validation": "Leave-One-Year-Out (LOYO)",
+  "augmentation": "interpolation-based (mixup-style), training folds only, N=3000",
+  "r2_loyo": 0.8305,
+  "rmse_billion_usd": 6.48,
+  "mae_billion_usd": 5.13,
+  "n_real_years": 15,
+  "year_range": [
+    2010,
+    2024
+  ],
+  "trained_on": "all 15 real years, augmented to N=3000; scalers fit on the augmented training set",
+  "note": "R2 is the LOYO generalization estimate; the deployed model is retrained on all years."
+}

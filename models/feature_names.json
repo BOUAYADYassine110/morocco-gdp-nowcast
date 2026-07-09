@@ -1,1 +1,9 @@
-["CO_mean", "NDVI_mean", "NightLights_std", "Precip_mean", "LST_mean", "LST_std", "LST_max", "GDP_Growth_Rate", "FDI_percent_GDP", "Gross_capital_formation_percent", "Agriculture_percent_GDP", "Cereal_yield_kg_per_ha", "Inflation_rate", "Manufacturing_percent_GDP", "Current_Account_GDP", "Food_production_index", "salaire maroc"]
+[
+  "salaire maroc",
+  "Food_production_index",
+  "LST_mean",
+  "FDI_percent_GDP",
+  "NDVI_mean",
+  "GDP_Growth_Rate",
+  "LST_max"
+]
